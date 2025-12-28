@@ -7,11 +7,11 @@ assignees: mastercion
 
 ---
 
-Operating system: (Optional) Windows 11 Build 23H2
-Java version: 21.0.3
-Minecraft version: 1.21.1
-SaveMyItems version: 0.1.1
-Other mods (if used): None
+Operating system: (Optional)
+Java version:
+Minecraft version:
+SaveMyItems version:
+Other mods (if used):
 
 ## Exception, error or logs
 Please find your `latest.log` and `config.json` in this folder and attach it to the issue
