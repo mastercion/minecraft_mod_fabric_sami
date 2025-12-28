@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "savemyitems",
+	"version": "${version}",
+	"name": "SaveMyItems",
+	"description": "Backup and manage Invetory items. Giving you flexibility when items are, lost, bugged or else!",
+	"authors": [
+		"mastercion"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/savemyitems/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"xyz.d1mx.SaveMyItems"
+		],
+		"client": [
+			"xyz.d1mx.SaveMyItemsClient"
+		]
+	},
+	"mixins": [
+		"savemyitems.mixins.json",
+		{
+			"config": "savemyitems.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"sgui": ">=1.6.1"
+	}
+}
