@@ -23,6 +23,6 @@ Config: `server/config/blockowner/config/config.json`
 Add your steps to reproduce the issue/bug experienced here.
 
 ## Final checklist
-- [x] I know how to properly use check boxes
-- [x] I have included the version of Minecraft I'm running, BlockOwner's version and fabric mods (if used).
-- [x] I have included logs, exceptions and / or steps to reproduce the issue.
+- [] I know how to properly use check boxes
+- [] I have included the version of Minecraft I'm running, BlockOwner's version and fabric mods (if used).
+- [] I have included logs, exceptions and / or steps to reproduce the issue.
