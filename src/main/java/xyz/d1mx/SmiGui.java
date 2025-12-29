@@ -3,12 +3,14 @@ package xyz.d1mx;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.File;
@@ -164,7 +166,25 @@ public class SmiGui {
         for (File backup : backups) {
             if (slot >= 53) break;
 
-            gui.setSlot(slot++, new GuiElementBuilder(Items.CHEST_MINECART)
+            // Load items specifically to generate the preview
+            List<ItemStack> backedUpItems = BackupManager.loadBackup(admin.getServer(), targetUuid, backup.getName());
+
+            // Create Shulker Box
+            ItemStack shulkerStack = new ItemStack(Items.SHULKER_BOX);
+
+            // Filter out empty items and limit to 27 Slots for best preview
+            List<ItemStack> containerItems = new ArrayList<>();
+            for (ItemStack item : backedUpItems) {
+                if (!item.isEmpty()) {
+                    containerItems.add(item.copy());
+                }
+                if (containerItems.size() >= 27) break;
+            }
+
+            ItemContainerContents contents = ItemContainerContents.fromItems(containerItems);
+            shulkerStack.set(DataComponents.CONTAINER, contents);
+
+            gui.setSlot(slot++, new GuiElementBuilder(shulkerStack)
                     .setName(Component.literal(backup.getName().replace(".nbt", "")))
                     .setCallback(() -> openBackupView(admin, targetUuid, targetName, backup.getName()))
             );
