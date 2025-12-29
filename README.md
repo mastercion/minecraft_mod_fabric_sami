@@ -5,7 +5,7 @@ This Mod adds Inventory Backups to your Minecraft Server, bringing better manage
 ![Preview](https://i.postimg.cc/ZKqh3vvT/invbackup.png)
 
 ## Features
-* Restore whole the whole Inventory
+* Restore the whole Inventory
 * Restore a single Item
 * Choose the receiving target
 * Audit logs
