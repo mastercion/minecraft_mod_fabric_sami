@@ -40,11 +40,11 @@ public class SmiGui {
                 .setCallback(() -> openConfigGui(admin))
         );
 
+        fillBackground(gui);
         gui.open();
     }
 
     private static void openConfigGui(ServerPlayer admin) {
-        // Display 6 rows
         SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x6, admin, false);
         gui.setTitle(Component.literal("Configure Settings"));
 
@@ -62,12 +62,12 @@ public class SmiGui {
                     }
                 }));
 
-        gui.setSlot(13, new GuiElementBuilder(Items.PAPER)
+        gui.setSlot(14, new GuiElementBuilder(Items.PAPER)
                 .setName(Component.literal(SaveMyItems.BACKUP_INTERVAL_MINUTES + " Minutes"))
                 .setCount(Math.min(64, Math.max(1, SaveMyItems.BACKUP_INTERVAL_MINUTES)))
         );
 
-        gui.setSlot(14, new GuiElementBuilder(Items.GREEN_CONCRETE)
+        gui.setSlot(16, new GuiElementBuilder(Items.GREEN_CONCRETE)
                 .setName(Component.literal("+1 Minute"))
                 .setCallback(() -> {
                     SaveMyItems.BACKUP_INTERVAL_MINUTES++;
@@ -91,23 +91,24 @@ public class SmiGui {
 
         String retentionText = (SaveMyItems.BACKUP_RETENTION_DAYS == 0) ? "Disabled (Keep Forever)" : SaveMyItems.BACKUP_RETENTION_DAYS + " Days";
 
-        gui.setSlot(31, new GuiElementBuilder(Items.FILLED_MAP)
+        gui.setSlot(32, new GuiElementBuilder(Items.FILLED_MAP)
                 .setName(Component.literal(retentionText))
                 .setCount(Math.max(1, SaveMyItems.BACKUP_RETENTION_DAYS))
         );
 
-        gui.setSlot(32, new GuiElementBuilder(Items.GREEN_STAINED_GLASS)
+        gui.setSlot(34, new GuiElementBuilder(Items.GREEN_STAINED_GLASS)
                 .setName(Component.literal("+1 Day"))
                 .setCallback(() -> {
                     SaveMyItems.BACKUP_RETENTION_DAYS++;
                     openConfigGui(admin);
                 }));
 
-
         // Component Back Button
         gui.setSlot(53, new GuiElementBuilder(Items.BARRIER)
                 .setName(Component.literal("Back"))
                 .setCallback(() -> openMainMenu(admin)));
+
+        fillBackground(gui);
         gui.open();
     }
 
@@ -143,6 +144,8 @@ public class SmiGui {
                 .setName(Component.literal("Back"))
                 .setCallback(() -> openMainMenu(admin))
         );
+
+        fillBackground(gui);
         gui.open();
     }
 
@@ -175,6 +178,8 @@ public class SmiGui {
         gui.setSlot(53, new GuiElementBuilder(Items.BARRIER)
                 .setName(Component.literal("Back"))
                 .setCallback(() -> openMainMenu(admin)));
+
+        fillBackground(gui);
         gui.open();
     }
 
@@ -221,6 +226,8 @@ public class SmiGui {
         gui.setSlot(53, new GuiElementBuilder(Items.BARRIER)
                 .setName(Component.literal("Back"))
                 .setCallback(() -> openPlayerList(admin)));
+
+        fillBackground(gui);
         gui.open();
     }
 
@@ -264,6 +271,12 @@ public class SmiGui {
                 })
         );
 
+        for (int i = 45; i < 54; i++) {
+            if (gui.getSlot(i) == null) {
+                gui.setSlot(i, new GuiElementBuilder(Items.BLACK_STAINED_GLASS_PANE).setName(Component.empty()));
+            }
+        }
+
         gui.open();
     }
 
@@ -300,6 +313,17 @@ public class SmiGui {
                     .orElse(uuidStr);
         } catch (IllegalArgumentException e) {
             return uuidStr;
+        }
+    }
+
+    // Background fill
+    private static void fillBackground(SimpleGui gui) {
+        for (int i = 0; i < gui.getSize(); i++) {
+            if (gui.getSlot(i) == null) {
+                gui.setSlot(i, new GuiElementBuilder(Items.BLACK_STAINED_GLASS_PANE)
+                        .setName(Component.empty())
+                );
+            }
         }
     }
 }
