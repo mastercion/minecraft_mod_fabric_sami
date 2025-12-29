@@ -14,6 +14,7 @@ public class SaveMyItems implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static int BACKUP_INTERVAL_MINUTES = 10;
+	public static int BACKUP_RETENTION_DAYS = 7; // New Setting
 	private int tickCounter = 0;
 
 	@Override
@@ -58,6 +59,11 @@ public class SaveMyItems implements ModInitializer {
 
 			BackupManager.createBackup(player);
 			backupCount++;
+		}
+
+		// Run cleanup after backup cycle
+		if (BACKUP_RETENTION_DAYS > 0) {
+			BackupManager.cleanupOldBackups(server, BACKUP_RETENTION_DAYS);
 		}
 
 		if (backupCount > 0) {

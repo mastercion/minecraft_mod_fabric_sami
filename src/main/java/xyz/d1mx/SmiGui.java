@@ -35,11 +35,79 @@ public class SmiGui {
         );
 
         gui.setSlot(15, new GuiElementBuilder(Items.CLOCK)
-                .setName(Component.literal("Configure Interval"))
-                .addLoreLine(Component.literal("Current: " + SaveMyItems.BACKUP_INTERVAL_MINUTES + " mins").withStyle(ChatFormatting.GRAY))
+                .setName(Component.literal("Configure Settings"))
+                .addLoreLine(Component.literal("Interval & Cleanup").withStyle(ChatFormatting.GRAY))
                 .setCallback(() -> openConfigGui(admin))
         );
 
+        gui.open();
+    }
+
+    private static void openConfigGui(ServerPlayer admin) {
+        // Display 6 rows
+        SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x6, admin, false);
+        gui.setTitle(Component.literal("Configure Settings"));
+
+        // GUI Backup Interval
+        gui.setSlot(10, new GuiElementBuilder(Items.CLOCK)
+                .setName(Component.literal("Backup Interval").withStyle(ChatFormatting.GOLD))
+        );
+
+        gui.setSlot(12, new GuiElementBuilder(Items.RED_CONCRETE)
+                .setName(Component.literal("-1 Minute"))
+                .setCallback(() -> {
+                    if (SaveMyItems.BACKUP_INTERVAL_MINUTES > 1) {
+                        SaveMyItems.BACKUP_INTERVAL_MINUTES--;
+                        openConfigGui(admin);
+                    }
+                }));
+
+        gui.setSlot(13, new GuiElementBuilder(Items.PAPER)
+                .setName(Component.literal(SaveMyItems.BACKUP_INTERVAL_MINUTES + " Minutes"))
+                .setCount(Math.min(64, Math.max(1, SaveMyItems.BACKUP_INTERVAL_MINUTES)))
+        );
+
+        gui.setSlot(14, new GuiElementBuilder(Items.GREEN_CONCRETE)
+                .setName(Component.literal("+1 Minute"))
+                .setCallback(() -> {
+                    SaveMyItems.BACKUP_INTERVAL_MINUTES++;
+                    openConfigGui(admin);
+                }));
+
+        // Cleanup
+        gui.setSlot(28, new GuiElementBuilder(Items.HOPPER)
+                .setName(Component.literal("Cleanup Old Backups").withStyle(ChatFormatting.GOLD))
+                .addLoreLine(Component.literal("Deletes files older than X days").withStyle(ChatFormatting.GRAY))
+        );
+
+        gui.setSlot(30, new GuiElementBuilder(Items.RED_STAINED_GLASS)
+                .setName(Component.literal("-1 Day"))
+                .setCallback(() -> {
+                    if (SaveMyItems.BACKUP_RETENTION_DAYS > 0) {
+                        SaveMyItems.BACKUP_RETENTION_DAYS--;
+                        openConfigGui(admin);
+                    }
+                }));
+
+        String retentionText = (SaveMyItems.BACKUP_RETENTION_DAYS == 0) ? "Disabled (Keep Forever)" : SaveMyItems.BACKUP_RETENTION_DAYS + " Days";
+
+        gui.setSlot(31, new GuiElementBuilder(Items.FILLED_MAP)
+                .setName(Component.literal(retentionText))
+                .setCount(Math.max(1, SaveMyItems.BACKUP_RETENTION_DAYS))
+        );
+
+        gui.setSlot(32, new GuiElementBuilder(Items.GREEN_STAINED_GLASS)
+                .setName(Component.literal("+1 Day"))
+                .setCallback(() -> {
+                    SaveMyItems.BACKUP_RETENTION_DAYS++;
+                    openConfigGui(admin);
+                }));
+
+
+        // Component Back Button
+        gui.setSlot(53, new GuiElementBuilder(Items.BARRIER)
+                .setName(Component.literal("Back"))
+                .setCallback(() -> openMainMenu(admin)));
         gui.open();
     }
 
@@ -57,7 +125,6 @@ public class SmiGui {
             else if (logEntry.contains("RESTORE ITEM")) color = ChatFormatting.YELLOW;
             else if (logEntry.contains("VIEW")) color = ChatFormatting.AQUA;
 
-            // Extract generic timestamp [YYYY-MM-DD...] for lore
             String timestamp = logEntry.startsWith("[") && logEntry.contains("]")
                     ? logEntry.substring(0, logEntry.indexOf("]") + 1)
                     : "";
@@ -76,40 +143,6 @@ public class SmiGui {
                 .setName(Component.literal("Back"))
                 .setCallback(() -> openMainMenu(admin))
         );
-        gui.open();
-    }
-
-    private static void openConfigGui(ServerPlayer admin) {
-        SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x3, admin, false);
-        gui.setTitle(Component.literal("Configure Interval"));
-
-        // -1 Minute
-        gui.setSlot(11, new GuiElementBuilder(Items.RED_CONCRETE)
-                .setName(Component.literal("-1 Minute"))
-                .setCallback(() -> {
-                    if (SaveMyItems.BACKUP_INTERVAL_MINUTES > 1) {
-                        SaveMyItems.BACKUP_INTERVAL_MINUTES--;
-                        openConfigGui(admin);
-                    }
-                }));
-
-        // Status Indicator
-        gui.setSlot(13, new GuiElementBuilder(Items.PAPER)
-                .setName(Component.literal("Interval: " + SaveMyItems.BACKUP_INTERVAL_MINUTES + " Minutes"))
-                .setCount(Math.min(64, Math.max(1, SaveMyItems.BACKUP_INTERVAL_MINUTES)))
-        );
-
-        // +1 Minute
-        gui.setSlot(15, new GuiElementBuilder(Items.GREEN_CONCRETE)
-                .setName(Component.literal("+1 Minute"))
-                .setCallback(() -> {
-                    SaveMyItems.BACKUP_INTERVAL_MINUTES++;
-                    openConfigGui(admin);
-                }));
-
-        gui.setSlot(26, new GuiElementBuilder(Items.BARRIER)
-                .setName(Component.literal("Back"))
-                .setCallback(() -> openMainMenu(admin)));
         gui.open();
     }
 
@@ -156,7 +189,6 @@ public class SmiGui {
             return;
         }
 
-        // Sort newest first
         Arrays.sort(backups, Comparator.comparingLong(File::lastModified).reversed());
 
         SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x6, admin, false);
@@ -166,13 +198,9 @@ public class SmiGui {
         for (File backup : backups) {
             if (slot >= 53) break;
 
-            // Load items specifically to generate the preview
             List<ItemStack> backedUpItems = BackupManager.loadBackup(admin.getServer(), targetUuid, backup.getName());
 
-            // Create Shulker Box
             ItemStack shulkerStack = new ItemStack(Items.SHULKER_BOX);
-
-            // Filter out empty items and limit to 27 Slots for best preview
             List<ItemStack> containerItems = new ArrayList<>();
             for (ItemStack item : backedUpItems) {
                 if (!item.isEmpty()) {
@@ -203,7 +231,6 @@ public class SmiGui {
         SimpleGui gui = new SimpleGui(MenuType.GENERIC_9x6, admin, false);
         gui.setTitle(Component.literal("Viewing: " + fileName.replace(".nbt", "")));
 
-        // Only fill up to 45 slots (top 5 rows) to leave bottom row for controls
         for (int i = 0; i < items.size() && i < 45; i++) {
             ItemStack stack = items.get(i);
             if (stack.isEmpty()) continue;
@@ -266,7 +293,6 @@ public class SmiGui {
         }
     }
 
-    // Helper to safely get player names from UUIDs even if they are offline
     private static String resolveName(MinecraftServer server, String uuidStr) {
         try {
             return server.getProfileCache().get(UUID.fromString(uuidStr))
